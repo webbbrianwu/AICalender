@@ -1,0 +1,2 @@
+# AICalender
+AICalendar，智能日历项目基于FullCalendar项目开发
