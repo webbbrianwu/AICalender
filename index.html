@@ -1,15 +1,405 @@
 <html>
     <head>
         <title>
-           测试项目
+            在GITHUB上建立完整的在线项目,人机合作！
         </title>
-         <link rel="stylesheet" href="css/style.css">
+         <link rel="stylesheet" href="http://admin.webwaitang.com:9803/content/shttp://admin.webwaitang.com:9803/Content/fullcalendar.cssmoothness/jquery-ui-1.10.4.custom.css">
+         <link rel="stylesheet" href="http://admin.webwaitang.com:9803/Content/fullcalendar.css">
+         <script src="http://admin.webwaitang.com:9803/Scripts/jquery-1.10.2.min.js"></script>
+         <script src="http://admin.webwaitang.com:9803/scripts/fullcalendar.min.js"></script>
+         <style type="text/css">
+            #calendar {
+                width: 960px;
+                margin: 20px auto 10px auto;
+            }
+    
+            .noticeWin {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                margin: auto;
+                width: 600px;
+                height: 600px;
+                background-color: #bfbfbf;
+                z-index: 99999;
+                border-radius: 5px;
+                text-align: center;
+                display: none;
+            }
+                .noticeWin .infoList {
+                    width: 600px;
+                    height: 400px;
+                    overflow:auto;
+                }
+                .noticeWin button {
+                    width: 70px;
+                    height: 30px;
+                }
+                .noticeWin .infoOption {
+                    width: 600px;
+                    height: 50px;
+                    position: absolute;
+                    bottom: 0;
+                }
+        </style>
     </head>
     <body>
-        <div class="container"> 
-            <h1>整体的测试2024年5月2日主要版本</h1>
-            <h1>整体的测试的debugger</h1>
+        <div id="main" style="width:1060px">
+            <div id='calendar'></div>
         </div>
+        <script>
+                //默认开始时间
+        var startTime = "2017-08-10";
+        var clevel = -1;
+        var cTeachers = 0;
+        var cclassState = -2;
+        var editState = false;//false: 代表需求收集  true：代表安排课程
+        var StitleState = true;//false: 课程学生title不显示  true：课程学生title显示
+        var SQtitleState = true;//false: 学生课程title不显示  true：学生课程title显示
+        var ccampusID =-1;
+        function fullCalendarRefetch()
+        {
+            $('#calendar').fullCalendar('refetchEvents');
+        }
+        $(function() {
+            var d = 3;
+            var m = 5;
+            var y = 2024;
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                defaultDate:'2017-08-10',
+                firstDay:1,
+                editable: true,
+                timeFormat: 'H:mm{-H:mm}',
+                axisFormat: 'H:mm{-H:mm}',
+                dayClick: function(data,allDay,jsEvent,view){
+
+                    // if (!editState)
+                    // {
+                    //     var win = window.open("/classsheet/create?OperaType=1&data=" + $.fullCalendar.formatDate(data, "yyyy-MM-dd"), "newwindow", "height=800, width=1200, top=100, left=100, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no");
+                    // }
+                },
+                onSelect:function(selectedDateTime){},
+                eventClick: function (event) {
+                    // if (!editState)
+                    // {
+                    //     console.log(event.id);
+                    //     var win = window.open("/classsheet/Edit/"+event.id+"?OperaType=1", "newwindow", "height=800, width=1200, top=100, left=100, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no");
+                    // }
+
+                },
+                events:function(start,end,callback)
+                {
+                    //获取开始时间
+                    // startTime = $.fullCalendar.formatDate(start,"yyyy-MM-dd");
+                    // //debugger;
+                    // console.log("start:"+$.fullCalendar.formatDate(start,"yyyy-MM-dd")+",end:"+end);
+                    // var eventserver = [];
+
+                    // if (editState) {
+                    //     $.post("/studyrequirements/getEvents", { starDate: $.fullCalendar.formatDate(start, "yyyy-MM-dd"), endDate: $.fullCalendar.formatDate(end, "yyyy-MM-dd"), Level: clevel,CampusID:ccampusID },
+                    //         function (data) {
+                    //             if (data.status == 1) {
+                    //                 var xschdatas = data.data;
+                    //                 for (i = 0; i < xschdatas.length; i++) {
+                    //                     eventserver.push(xschdatas[i]);
+                    //                 }
+                    //                 callback(eventserver);
+                    //             }
+                    //             else {
+                    //                 alert(data.message);
+                    //             }
+                    //         });
+                    // } else {
+                    //     $.post("/classsheet/getClassByTeacher", { starDate: $.fullCalendar.formatDate(start, "yyyy-MM-dd"), endDate: $.fullCalendar.formatDate(end, "yyyy-MM-dd"), Teacher: cTeachers, classState: cclassState,CampusID:ccampusID },
+                    //        function (data) {
+                    //            if (data.status == 1) {
+                    //                var xschdatas = data.data;
+                    //                for (i = 0; i < xschdatas.length; i++) {
+                    //                    eventserver.push(xschdatas[i]);
+                    //                }
+                    //                callback(eventserver);
+                    //            }
+                    //            else {
+                    //                alert(data.message);
+                    //            }
+                    //        });
+
+                    // }
+                },
+                eventMouseover:function (event,jsEvent,view) {
+                    ///移入事件
+                    // if (editState) {
+                    //     if (SQtitleState == true) {
+                    //         ///为需求表时，存放对应标签
+                    //         var elem = this;
+                    //         $.ajax({
+                    //             type: "post",
+                    //             data: { id: event.id },
+                    //             url: "/classrecord/RecordStr",
+                    //             dataType:"json",
+                    //             success: function (data) {
+                    //                 if (data.status == 1) {
+                    //                     var recorStr = "";
+                    //                     ///title中每行课程量
+                    //                     var titleNum = 5;
+                    //                     ///循环学生课程状态枚举
+                    //                     for (var i in data.classState) {
+                    //                         ///状态为未（通过，预订，上课）的学生课程
+                    //                         if (data.classState[i].Value <= 0) {
+                    //                             ///课程状态
+                    //                             recorStr += data.classState[i].Description + ":\r\n";
+
+                    //                             ///title中每行课程数
+                    //                             var titleNum = 4;
+
+                    //                             for (var j in data.records) {
+
+                    //                                 ///对应状态下的课程，以逗号分隔
+                    //                                 if (data.classState[i].Value == data.records[j].ClassState ) {
+                    //                                     recorStr += data.records[j].CourseName + ",";
+
+                    //                                     if ((parseInt(j) + 1) % titleNum == 0){
+                    //                                         recorStr += "\r\n";
+                    //                                     }
+                    //                                 }
+                    //                             }
+
+                    //                             ///判断每个状态下最后行课程是否换行
+                    //                             recorStr = recorStr.substring(recorStr.length-2,recorStr.length) == "\r\n" ? recorStr:(recorStr += "\r\n");
+                    //                         }
+                    //                     }
+
+                    //                     ///对标签的title进行赋值
+                    //                     $(elem).prop("title",recorStr);
+                    //                 }
+                    //             }
+                    //         });
+
+                    //     }
+                    // } else {
+                    //     if (StitleState == true) {
+                    //         ///为排课表时，存放对应标签
+                    //         var elem = this;
+                    //         $.ajax({
+                    //             type: "post",
+                    //             data: { id: event.id },
+                    //             url: "/classsheet/studentStr",
+                    //             dataType:"json",
+                    //             success: function (data) {
+                    //                 if (data.error == 0) {
+                    //                     var nameStr = "";
+
+                    //                     ///-1：缺席，1：预约，3：通过
+                    //                     var classStateArr = [-1,1,3];
+
+                    //                     ///循环学生课程状态枚举
+                    //                     for (var i in data.classState) {
+                    //                         ///状态为未（通过，预订，缺席）的学生课程
+                    //                         if (data.classState[i].Value == classStateArr[0] || data.classState[i].Value == classStateArr[1] || data.classState[i].Value == classStateArr[2]) {
+                    //                             ///课程状态
+                    //                             nameStr += data.classState[i].Description + ":\r\n";
+
+                    //                             ///title中每行学生数
+                    //                             var titleNum = 2;
+
+                    //                             for (var j in data.classrecords) {
+                    //                                 ///对应状态下的课程，以逗号分隔
+                    //                                 if (data.classState[i].Value == data.classrecords[j].ClassState ) {
+                    //                                     nameStr += data.classrecords[j].StudentName + ",";
+
+                    //                                     if ((parseInt(j) + 1) % titleNum == 0){
+                    //                                         nameStr += "\r\n";
+                    //                                     }
+                    //                                 }
+                    //                             }
+
+                    //                             ///判断每个状态下最后行课程是否换行
+                    //                             nameStr = nameStr.substring(nameStr.length-2,nameStr.length) == "\r\n" ? nameStr:(nameStr += "\r\n");
+                    //                         }
+                    //                     }
+
+                    //                     ///对标签的title进行赋值
+                    //                     $(elem).prop("title",nameStr);
+                    //                 }
+                    //             }
+                    //         });
+
+                    //     }
+                    // }
+                },
+                eventMouseout:function (event,jsEvent,view) {
+                    ///移除事件
+                    // if (editState) {
+                    // } else {
+                    //     ///清空标签的title
+                    //     $(this).prop("title","");
+                    // }
+                }
+            });
+
+            $(".fc-header-left").before("<span class='fc-button fc-button-month fc-state-default fc-corner-left fc-state-active' unselectable='on' style='-moz-user-select: none;' id='ChangeState'>排课</span>");
+
+            $(".fc-header-left").before("<select style='margin-left:10px;height:30px' id='CTeacher' ><option value=0>All</option><option value=20>李立</option><option value=22>徐凤妹</option><option value=34>程薇</option><option value=38>李梦雪</option><option value=49>周旺</option><option value=51>姜俊辉</option><option value=52>姚文文</option><option value=60>川琦百合子</option><option value=61>觉知弥生子</option><option value=62>河野老师</option><option value=65>何发芹</option><option value=72>王彤</option><option value=73>吴英梅</option><option value=79>孙奕</option><option value=80>胡海</option><option value=82>张倩楠</option><option value=92>夏雪飞</option><option value=94>洪路</option><option value=95>张北</option><option value=97>包佩萍</option><option value=99>郝双双</option><option value=101>刘昕言</option><option value=102>陈信</option><option value=103>余荷</option><option value=105>龚芬</option><option value=106>尹伊</option><option value=107>徐莹莹</option><option value=108>陈艳玲</option><option value=109>杨雪萌</option><option value=111>川岛直央</option><option value=112>高月舞</option><option value=114>邓慧霞</option><option value=115>王舒婷</option><option value=116>李盎雯</option><option value=118>王兵</option></select>");
+
+            $(".fc-header-left").before("<select style='margin-left:10px;height:30px' id='cclassState' ><option value='0' >计划</option><option value='1' >批准</option><option value='-2' selected>全部</option></select>");
+
+            $(".fc-header-left").before("<select  style='margin-left:10px;height:30px' id='cSchools' ><option value='-1' selected='selected' >全部</option><option value='0'  >光谷校区</option><option value='1'  >汉阳校区</option></select>");
+
+            $(".fc-header-left").before("<select  style='margin-left:10px;height:30px' id='JLevel' ><option value=-1>所有级别</option><option value='-1' selected >请选择</option><option value='0'  >S</option><option value='1'  >T1</option><option value='2'  >T2</option><option value='3'  >T3</option><option value='4'  >T4</option><option value='5'  >T5</option><option value='6'  >T6</option><option value='7'  >T7</option><option value='8'  >T8</option><option value='9'  >T9</option><option value='10'  >T10</option><option value='100'  >VIP</option></select>");
+
+            $(".fc-header-left").before("&nbsp;&nbsp;<span class='fc-button fc-state-default fc-corner-left fc-corner-right' unselectable='on' style='-moz-user-select: none;' id='ShowWeek'>周表</span>");
+
+            $("#cSchools").change(function(){
+                ccampusID = $(this).val();
+                $('#calendar').fullCalendar('refetchEvents');
+            });
+
+            $("#JLevel").change(function () {
+                clevel = $(this).val();
+                $('#calendar').fullCalendar('refetchEvents');
+            });
+
+            $("#ChangeState").click(function () {
+                editState = !editState;
+                setFullCalendarState()
+                $('#calendar').fullCalendar('refetchEvents');
+            });
+
+            $("#cclassState").change(function () {
+                cclassState = $(this).val();
+                $('#calendar').fullCalendar('refetchEvents');
+            });
+
+            $("#CTeacher").click(function () {
+                cTeachers = $(this).val();
+                $('#calendar').fullCalendar('refetchEvents');
+            });
+
+            setFullCalendarState();
+
+        });
+
+        function setFullCalendarState()
+        {
+            $(".fc-content").css("margin-top","100px");
+            $(".fc-header").css("width","1000px");
+            $(".fc-header").css("position","fixed");
+            $(".fc-header").css("z-index","999999");
+            $(".fc-header").css("background-color","white");
+            $(".fc-header").css("top","0px");
+
+            if (editState) {
+                $("#ChangeState").html("需求");
+                $("#CTeacher").css("display", "none");
+                $("#cclassState").css("display", "none");
+                $("#JLevel").css("display", "");
+                $("#cSchools").css("display","");
+            } else {
+                $("#ChangeState").html("排课");
+                $("#CTeacher").css("display", "");
+                $("#cclassState").css("display", "");
+                $("#JLevel").css("display", "none");
+                $("#cSchools").css("display","");
+                $("#ShowWeek").hide();
+            }
+
+            //防止非常规操作
+            if ($(".fc-header-right .fc-state-active").html() == "周") {
+                $("#ShowWeek").show();
+            }else {
+                $("#ShowWeek").hide();
+            }
+        }
+
+        $(function () {
+            //显示隐藏周表按钮
+            $(".fc-ltr .fc-header tbody tr .fc-header-right span").each(function(){
+                $(this).click(function () {
+                    if (editState) {
+                        if ($(this).html() == "周") {
+                            $("#ShowWeek").show();
+                        }else {
+                            $("#ShowWeek").hide();
+                        }
+                    }
+                });
+            });
+
+            //跳转到学生需求周表页面
+            $("#ShowWeek").click(function () {
+                // var view = $('#calendar').fullCalendar('getView');
+                // startTime =  $.fullCalendar.formatDate(view.start,"yyyy-MM-dd");
+                // window.open("/studyrequirements/WeekSelect?JLevelID="+$("#JLevel").val()+"&startTime="+startTime+"&CampusID="+ccampusID);
+            });
+
+            //右键点击事件
+            $(".fc-day").contextmenu(function (e) {
+                return false
+            })
+            $(".noticeWin").contextmenu(function (e) {
+                return false
+            })
+            $(".fc-day").mousedown(function (e) {
+                // e.preventDefault()
+                // $(".noticeWin .infoList").html("");
+                // if (3 == e.which) {
+                //     //获取有课的学生信息,target是点击的当前元素，currentTarget是绑定点击事件的根元素，这里用currentTarget
+                //     $.ajax({
+                //         type: "post",
+                //         data: { liveTime: e.currentTarget.dataset.date },
+                //         url: "/studyrequirements/getUserInfoList",
+                //         dataType: "json",
+                //         success: function (data) {
+                //             if (data.status == 1) {
+                //                 var str = "";
+                //                 for (let x = 0; x < data.data.length; x++) {
+                //                     str += "<p>" + data.data[x].StudentName + "&nbsp;&nbsp;&nbsp;" + data.data[x].CourseName + "&nbsp;&nbsp;&nbsp;" + FormatTimeStr(data.data[x].StartTime, "yyyy/MM/dd hh:mm:ss") + "—" + FormatTimeStr(data.data[x].EndTime, "hh:mm:ss") + "</p>"
+                //                 };
+                //                 $(".noticeWin .infoList").append(str);
+                //                 $(".noticeWin").toggle();
+                //             } else if (data.status == 0) {
+                //                 alert(data.message)
+                //             }
+                //         }
+                //     });
+                // }
+            })
+            $(".closeWin").click(function () {
+                $(".noticeWin").hide();
+            });
+
+            $(".export").click(function () {
+                // $.ajax({
+                //     type: "post",
+                //     data: { liveTime: "2021-01-22" },
+                //     url: "/studyrequirements/ExportExcel",
+                //     dataType: "json",
+                //     success: function (data) {
+                //         if (data.status == 1) {
+                //             //window.open("http://" + window.location.host + data.excelPath)
+                //             download(window.location.host + data.excelPath);
+                //         }
+                //     }
+                // });
+            })
+
+            //下载文件
+            function download(url) {
+                var $form = $('<form method="GET"></form>');
+                $form.attr('action', "http://" + url);
+                $form.appendTo($('body'));
+                $form.submit();
+            }
+        });
+    </script>
+        </script>
     </body>
 </html>
     
